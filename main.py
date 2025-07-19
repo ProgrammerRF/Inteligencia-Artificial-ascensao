@@ -6,6 +6,7 @@
 __Author__ = "Rafael Moraes De Oliveira"
 __Date__ = "Sábado (08/03/2025)"
 
+#Importa modulos necessários
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.button import Button
@@ -23,24 +24,46 @@ import socket
 from firebase import firebase
 from kivy.core.window import Window
 
-# Sua chave da API Together
-API_KEY = '''tgp_v1_qHmRJD_1nhQKYnrVYUm6TDKTmXXJa58hNv1xkmNqsuE'''
-API_URL = 'https://api.together.ai/v1/chat/completions'
+#Carrega as variaveis do .env
+from dotenv import load_dotenv
 
+# Carrega o conteudo do arquivo .dotenv para as variaveis de sistema
+load_dotenv() # Procura o comando .env e carrega suas variaveis no sistema
+
+# Sua chave da API Together
+API_KEY = os.getenv('API_KEY') 
+API_URL = os.getenv('API_URL')
+
+#Integração com o firebase
 firebase_app = firebase.FirebaseApplication("https://inteligencia-artificial-37d91-default-rtdb.firebaseio.com/",None)
+
+"""
+A lista user_name inicia vazia, porém conforme o usuario interage com o aplicativo armazena o nome do usuario que é fornecido após uma consulta no firebase através do email quando o usuario faz login ou se cadastra.
+
+A lista photo_profile tambem inicializa vazia, porém quando o usuario faz login a lista armazena o numero e o tipo da foto que está registrada no firebase.
+
+E a lista user_email tambem inicializa vazia, porém quando o usuario faz login ou se cadastra armazena o email do usuario.
+
+essas listas tem o objetivo de manter os dados persistentes no app sem ter que fazer excessivas consultas no banco de dados.
+"""
 
 user_name = []
 photo_profile = []
 user_email = []
+historico_nome = []
+historico_conteudo = []
 
 class Menu(Screen):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
-        
+
     def on_pre_enter(self):
+        """Assim que o usuario inicializa o programa a tecla voltar do android recebe a funcionalidade de apresentar um popup antes de encerrar o app perguntando se o usuario quer realmente fechar o programa"""
         Window.bind(on_keyboard=self.tecla_voltar)
-        
+
     def tecla_voltar(self,window,key,*args):
+        """ 27 é o numero correspondente a tecla voltar do android. quando o usuario pressiona essa tecla chama a função sair que abre um Popup perguntando se o usuario realmente quer sair.
+        """
         if key == 27:
         	self.sair()
         	return True
@@ -288,9 +311,86 @@ class HomePage(Screen):
 	    self.ids['user_name'].text = nome_do_usuario.replace('[','').replace(']','').replace("'",'')
 	    #self.ids['resposta_ia'].text = 'Como posso te ajudar ? ' #'teste '*250
 	    
-	    resposta = self.ids['resposta_ia'].text
-	
-	    separar = resposta.split()
+	    if len(historico_nome) == 0:
+	    	resposta = self.ids['resposta_ia'].text
+	    	print("BET")
+	    else:
+	    	self.ids['resposta_ia'].text = str(historico_conteudo[0])
+	    	resposta = self.ids['resposta_ia'].text
+	    	print()
+	    	print('what are you selling?')
+	    	print(resposta)
+	    	print()
+	    	
+	    	separar = resposta.split()
+	    	
+	    	if len(separar) < 100:
+	    		self.ids['resposta_ia'].size_hint = (1,3.90)
+	    		
+	    	elif len(separar) == 100:
+	    	 	self.ids['resposta_ia'].size_hint = (1,3.90)
+	    	 	
+	    	elif len(separar) < 250 and len(separar) > 100:
+	    	 	self.ids['resposta_ia'].size_hint = (1,3.90)
+	    	 	
+	    	elif len(separar) == 250:
+	    	 	self.ids['resposta_ia'].size_hint = (1,3.90)
+	    	 	
+	    	elif len(separar) < 500 and len(separar) > 250:
+	    	 	self.ids['resposta_ia'].size_hint = (1,5.10)
+	    	
+	    	elif len(separar) == 500:
+	    	 	self.ids['resposta_ia'].size_hint = (1,5.10)
+	    	 	
+	    	elif len(separar) < 750 and len(separar) > 500:
+	    	 	self.ids['resposta_ia'].size_hint = (1,5.10)
+	    	
+	    	elif len(separar) == 750:
+	    		self.ids['resposta_ia'].size_hint = (1,5.10)
+	    		
+	    	elif len(separar) < 1000 and len(separar) > 750:
+	    	    self.ids['resposta_ia'].size_hint = (1,5.10)
+	    	    
+	    	elif len(separar) == 1000:
+	    	 	self.ids['resposta_ia'].size_hint = (1,5.10)
+	    	 	
+	    	elif len(separar) < 1250 and len(separar) > 1000:
+	    	 	self.ids['resposta_ia'].size_hint = (1,5.20)
+	    	
+	    	elif len(separar) == 1250:
+	    	 	self.ids['resposta_ia'].size_hint = (1,5.20)
+	    	 	
+	    	elif len(separar) < 1500 and len(separar) > 1250:
+	    	 	self.ids['resposta_ia'].size_hint = (1,6.20)
+	    	 	
+	    	elif len(separar) == 1500:
+	    	 	self.ids['resposta_ia'].size_hint = (1,6.20)
+	    	 	
+	    	elif len(separar) < 1750 and len(separar) > 1500:
+	    	 	self.ids['resposta_ia'].size_hint = (1,7.10)
+	    	
+	    	elif len(separar) == 1750:
+	    	 	self.ids['resposta_ia'].size_hint = (1,7.10)
+	    	 	
+	    	elif len(separar) < 2000 and len(separar) > 1750:
+	    	 	self.ids['resposta_ia'].size_hint = (1,8.20)
+	    	 	
+	    	elif len(separar) == 2000:
+	    	 	self.ids['resposta_ia'].size_hint = (1,8.20)
+	    	 	
+	    	elif len(separar) < 2232 and len(separar) > 2000:
+	    	 	self.ids['resposta_ia'].size_hint = (1,9)
+	    	 	
+	    	elif len(separar) == 2232:
+	    		self.ids['resposta_ia'].size_hint = (1,9)
+	    	
+	    	linhas = []
+	    	for i in range(0, len(separar), 6):
+		    	linha = ' '.join(separar[i:i+6])
+		    	linhas.append(linha)
+		    	self.ids['resposta_ia'].text = '\n'.join(linhas).replace('.','\n\n').strip()
+		    
+
 	    
 	    try:
 		    email = user_email[0]
@@ -365,6 +465,10 @@ class HomePage(Screen):
 		
 	def dispensar(self,*args):
 		self.popup.dismiss() 
+		
+	def formatar_pergunta(self,pergunta,*args):
+		return pergunta.replace('.','').replace('@','').replace('#','').replace('[','').replace(']','').replace('/','').replace('$','').replace('?','')
+		
 	
 	def send_question(self, *args):
 		pergunta = self.ids['entrada_usuario'].text
@@ -382,6 +486,18 @@ class HomePage(Screen):
 		    self.ids['resposta_ia'].text = "Resposta: " + resposta
 		    
 		    resposta = self.ids['resposta_ia'].text
+		    
+		    pergunta_formatada = self.formatar_pergunta(pergunta)
+		    
+		    email = str(user_email[0])
+		    
+		    email_formatado = email.replace('.',',').replace('@','_')
+		    
+		    info = {
+		    f'{pergunta_formatada}': f"{resposta}"
+		    }
+		    
+		    historico_conversa = firebase_app.patch(f'/Usuarios/{email_formatado}/historico',info)
 	
 		    separar = resposta.split()
 		    
@@ -770,8 +886,75 @@ class Mudar_Email(Screen):
 	def formatar_email(self,email,*args):
 		email = str(email)
 		return email.replace('.',',').replace('@','_')
+
+class Historico_Conversas(Screen):
+	def __init__(self,**kwargs):
+		super().__init__(**kwargs)
 		
-	
+	def on_pre_enter(self):
+		Window.bind(on_keyboard=self.voltar)
+		
+		email = str(user_email[0])
+		
+		email_formatado = email.replace('@','_').replace('.',',')
+		
+		try:
+			self.historico = firebase_app.get(f'/Usuarios/{email_formatado}/historico',None)
+			
+			for palavra in self.historico.keys():
+				if self.historico.keys == None:
+					pass
+				else:
+					grid = FloatLayout(size_hint_y=None,height=140)
+					self.button = Button(text=str(palavra),pos_hint={'center_x':0.5,'center_y':0.2},size_hint=(0.9,None),background_color=(0,0,0,0),size_hint_y=None,height=200)
+					self.button.bind(on_press=self.conversa_arquivada)
+					grid.add_widget(self.button)
+					self.ids['float'].add_widget(grid)
+		except Exception as erro:
+			print('Erro')
+			
+	def on_leave(self):
+		self.ids['float'].clear_widgets()
+		
+	def voltar(self,window,key,*args):
+		print('*'*30)
+		print(key)
+		print('*'*30)
+		if key == 27:
+			self.manager.current = 'configuracoes'
+			return True
+			
+	def conversa_arquivada(self,instance,*args):
+		try:
+			historico_nome.clear()
+			historico_conteudo.clear()
+			historico_nome.append(instance.text)
+			
+			print("""
+			OVER HERE STRANGER
+			{}
+			""".format(historico_nome))
+			
+			email = str(user_email[0])
+			email_formatado = email.replace('@','_').replace('.',',')
+			
+			pergunta = instance.text
+			self.historico_conteudo = firebase_app.get(f'/Usuarios/{email_formatado}/historico/{historico_nome[0]}',None)
+			historico_conteudo.append(self.historico_conteudo)
+			
+			print(f"""
+			!!!!!
+			{self.historico_conteudo}
+			!!!!!
+			""")
+		except Exception as erro:
+			print(erro)
+		
+		self.manager.current = 'homepage'
+
+	def formatar_pergunta(self,pergunta,*args):
+		return pergunta.replace('.','ponto').replace('@','arroba').replace('#','jogovelha').replace('[','colcheteesquerdo').replace(']','colchetedireito').replace('/','barra').replace('$','cifrao').replace(' ','espaco')
+		
 Gui = Builder.load_file('main.kv')
 
 class Inteligencia_Artificial(App):
@@ -785,6 +968,7 @@ class Inteligencia_Artificial(App):
         sm.add_widget(Mudar_Nome(name='mudar_nome'))
         sm.add_widget(Mudar_Senha(name='mudar_senha'))
         sm.add_widget(Mudar_Email(name='mudar_email'))
+        sm.add_widget(Historico_Conversas(name='historico_conversas'))
         return sm
 
 if __name__ == '__main__':
