@@ -252,49 +252,59 @@
         Label:
         	text:'Configurações'
         	size_hint:1,1
-        	pos_hint:{'right':1,'top':1.08}
-        	font_size:45
+        	pos_hint:{'right':1,'top':1.11}
+        	font_size:50
         Image:
-        	pos_hint:{'right':0.70,'top':0.50}
+        	pos_hint:{'right':0.70,'top':0.55}
             size_hint:0.40,0.06
         	source:'/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png'
         Button:
         	text:'Mudar foto de perfil'
         	size_hint:0.40,0.06
-        	pos_hint:{'right':0.70,'top':0.50}
+        	pos_hint:{'right':0.70,'top':0.55}
         	background_color:0,0,0,0
         	on_press:root.manager.current = 'mudar_foto'
         Image:
-        	pos_hint:{'right':0.70,'top':0.40}
+        	pos_hint:{'right':0.70,'top':0.45}
         	size_hint:0.40,0.06
         	source:'/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png'
         Button:
         	text:'Mudar o nome'
-        	pos_hint:{'right':0.70,'top':0.40}
+        	pos_hint:{'right':0.70,'top':0.45}
         	size_hint:0.40,0.06
         	background_color:0,0,0,0
         	on_press:root.manager.current = 'mudar_nome'
         Image:
-        	pos_hint:{'right':0.70,'top':0.30}
+        	pos_hint:{'right':0.70,'top':0.35}
         	size_hint:0.40,0.06
         	source:'/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png'
         Button:
         	text:'Mudar a senha'
-        	pos_hint:{'right':0.70,'top':0.30}
+        	pos_hint:{'right':0.70,'top':0.35}
         	size_hint:0.40,0.06
         	source:'/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png'
         	background_color:0,0,0,0
         	on_press: root.manager.current = 'mudar_senha'
         Image:
-        	pos_hint:{'right':0.70,'top':0.20}
+        	pos_hint:{'right':0.70,'top':0.25}
         	size_hint:0.40,0.06
         	source:'/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png'
         Button:
         	text:'Mudar o E-mail'
-        	pos_hint:{'right':0.70,'top':0.20}
+        	pos_hint:{'right':0.70,'top':0.25}
         	size_hint:0.40,0.06
         	background_color:0,0,0,0
         	on_press: root.manager.current = 'mudar_email'
+        Image:
+        	pos_hint:{'right':0.70,'top':0.15}
+        	size_hint:0.40,0.06
+        	source:'/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png'
+        Button:
+        	text:'Historico de conversas'
+        	pos_hint:{'right':0.70,'top':0.15}
+        	size_hint:0.40,0.06
+        	background_color:0,0,0,0
+        	on_press:root.manager.current = 'historico_conversas'
         	
         	
         	
@@ -339,7 +349,7 @@
         	text:'Mudar Foto De Perfil'
         	pos_hint:{'right':1,'top':1.14}
         	size_hint:1,1
-        	font_size:40
+        	font_size:45
         ScrollView:
         	id:teste
         	pos_hint:{'right':1,'top':0.59}#0.65
@@ -384,7 +394,7 @@
         	text:'Mudar Nome De Perfil'
         	pos_hint:{'right':1,'top':1.10}
         	size_hint:1,1
-        	font_size:40
+        	font_size:45
         TextInput:
         	id:campo_alterar_nome
         	hint_text:'Digite o novo nome'
@@ -442,7 +452,7 @@
         	text:'Mudar Senha'
         	pos_hint:{'right':1,'top':1.10}
         	size_hint:1,1
-        	font_size:40
+        	font_size:45
         TextInput:
         	id: senha1_input
         	hint_text:'Digite sua senha antiga'
@@ -554,7 +564,7 @@
         	text:'Mudar E-mail'
         	pos_hint:{'right':1,'top':1.10}
         	size_hint:1,1
-        	font_size:40
+        	font_size:45
         TextInput:
         	id:campo_alterar_email
         	hint_text:'Digite seu novo email'
@@ -571,4 +581,62 @@
         	size_hint:1,0.05
         	background_color:0,0,0,0
         	on_press: root.mudar_email()
+        	
+<Historico_Conversas>:
+    FloatLayout:
+        id:float
+        pos_hint:{'right':1,'top':1}
+        size_hint:1,1
+        
+        canvas.before:
+        	Rectangle:
+        		source:"/storage/emulated/0/Python/Inteligencia_Artificial/fotos/fundo_preto.png"
+        		pos:self.pos
+        		size:self.size
+        
+        Image:
+        	pos_hint:{'right':1,'top':1.25}
+       	 size_hint:1,1
+        	source:"/storage/emulated/0/Python/Inteligencia_Artificial/fotos/terra.png"
+        Label:
+        	id:label_error
+        	text:''
+        	pos_hint:{'right':1,'top':0.42}
+        	size_hint:1,0.05
+        Label:
+            pos_hint:{'right':1,'top':1.40}
+            size_hint:1,1
+            text:'Ascensão'
+            color:0,1,0,1
+            font_size: 60
+        LabelButton:
+            pos_hint:{'right':0.59,'top':1.49}
+            size_hint:1,1
+            text:'Voltar'
+            font_size: 40
+            on_press:root.manager.current = 'configuracoes'
+        Label:
+        	text:'Historico De Conversas'
+        	pos_hint:{'right':1,'top':1.10}
+        	size_hint:1,1
+        	font_size:45
+        ScrollView:
+        	pos_hint:{'right':1,'top':0.45}
+        	size_hint:1,0.85
+        	GridLayout:
+        		id:float
+        		cols:1
+        		spacing: 10
+        		padding: 10
+        		size_hint_y:None
+        		height: self.minimum_height
+        	
+        	
+           		
+           	     	        	
+                 	        	
+        	        	        	
+        	        	        	
+        	        	        	
+        	        	        	
         	        	        	
