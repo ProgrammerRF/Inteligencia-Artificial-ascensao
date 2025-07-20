@@ -74,12 +74,12 @@ class Menu(Screen):
         bt1 = Button(text='Sim',pos_hint={'right':0.42,'top':0.6},size_hint=(0.40,0.30),background_color=(0,0,0,0))
         bt1.bind(on_press=self.saida)
         
-        bt1_image = Image(source='/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png',pos_hint={'right':0.42,'top':0.6},size_hint=(0.40,0.30))
+        bt1_image = Image(source='fotos/Botao.png',pos_hint={'right':0.42,'top':0.6},size_hint=(0.40,0.30))
         
         bt2 = Button(text='Não',pos_hint={'right':0.95,'top':0.6},size_hint=(0.40,0.30),background_color=(0,0,0,0))
         bt2.bind(on_press=self.dispensar)
         
-        bt2_image = Image(source='/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png',pos_hint={'right':0.95,'top':0.6},size_hint=(0.40,0.30))
+        bt2_image = Image(source='fotos/Botao.png',pos_hint={'right':0.95,'top':0.6},size_hint=(0.40,0.30))
         
         float.add_widget(titulo)
         
@@ -89,7 +89,7 @@ class Menu(Screen):
         float.add_widget(bt2_image)
         float.add_widget(bt2)
         
-        self.popup = Popup(title=''.center(90),content=float,pos_hint={'right':1,'top':0.7},size_hint=(1,0.30),background="/storage/emulated/0/Python/Inteligencia_Artificial/fotos/fundo_preto.png")
+        self.popup = Popup(title=''.center(90),content=float,pos_hint={'right':1,'top':0.7},size_hint=(1,0.30),background="fotos/fundo_preto.png")
         
         self.popup.open()
     
@@ -415,7 +415,9 @@ class HomePage(Screen):
 		    foto_perfil = str(photo_profile)
 		    foto_perfil_formatada = foto_perfil.replace('[','').replace("]",'').replace("'",'')
 		    
-		    self.ids['foto_usuario'].source = f'/storage/emulated/0/Python/Inteligencia_Artificial/foto_usuario/{foto}'
+		    print(os.getcwd())
+		    
+		    self.ids['foto_usuario'].source = f'foto_usuario/{foto}'
 	    	
 	    except Exception as erro:
 	    	print(erro)
@@ -438,12 +440,12 @@ class HomePage(Screen):
 	       bt1 = Button(text='Sim',pos_hint={'right':0.42,'top':0.6},size_hint=(0.40,0.30),background_color=(0,0,0,0))
 	       bt1.bind(on_press=self.saida)
 	       
-	       bt1_image = Image(source='/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png',pos_hint={'right':0.42,'top':0.6},size_hint=(0.40,0.30))
+	       bt1_image = Image(source='fotos/Botao.png',pos_hint={'right':0.42,'top':0.6},size_hint=(0.40,0.30))
 	       
 	       bt2 = Button(text='Não',pos_hint={'right':0.95,'top':0.6},size_hint=(0.40,0.30),background_color=(0,0,0,0))
 	       bt2.bind(on_press=self.dispensar)
 	       
-	       bt2_image = Image(source='/storage/emulated/0/Python/Inteligencia_Artificial/fotos/Botao.png',pos_hint={'right':0.95,'top':0.6},size_hint=(0.40,0.30))
+	       bt2_image = Image(source='fotos/Botao.png',pos_hint={'right':0.95,'top':0.6},size_hint=(0.40,0.30))
 	       
 	       float.add_widget(titulo)
 	       float.add_widget(bt1_image)
@@ -451,7 +453,7 @@ class HomePage(Screen):
 	       float.add_widget(bt2_image)
 	       float.add_widget(bt2)
 	       
-	       self.popup = Popup(title=''.center(90),content=float,pos_hint={'right':1,'top':0.7},size_hint=(1,0.30),background="/storage/emulated/0/Python/Inteligencia_Artificial/fotos/fundo_preto.png")
+	       self.popup = Popup(title=''.center(90),content=float,pos_hint={'right':1,'top':0.7},size_hint=(1,0.30),background="fotos/fundo_preto.png")
 	       
 	       self.popup.open()
 	       
@@ -620,8 +622,10 @@ class Mudar_Foto(Screen):
         # Grid para mostrar 3 imagens por linha
         grid = GridLayout(cols=3, spacing=10, padding=10, size_hint_y=None)#10
         grid.bind(minimum_height=grid.setter('height'))
+        
+        print(os.getcwd())
 
-        os.chdir("/storage/emulated/0/Python/Inteligencia_Artificial/foto_usuario")
+        os.chdir("foto_usuario")
         fotos = sorted(os.listdir())
 
         for foto in fotos:
@@ -648,6 +652,7 @@ class Mudar_Foto(Screen):
 	    	requisicao = requests.patch(f"https://inteligencia-artificial-37d91-default-rtdb.firebaseio.com/Usuarios/{nome_usuario_formatado}.json",data=info)
 	    	print(requisicao.status_code)
 	    	print(requisicao.text)
+	    	os.chdir('..')
 	    	self.manager.current = 'homepage'
     	except:
     		self.ids["label_error"].text = 'Você não está conectado a internet'
@@ -953,7 +958,7 @@ class Historico_Conversas(Screen):
 		self.manager.current = 'homepage'
 
 	def formatar_pergunta(self,pergunta,*args):
-		return pergunta.replace('.','ponto').replace('@','arroba').replace('#','jogovelha').replace('[','colcheteesquerdo').replace(']','colchetedireito').replace('/','barra').replace('$','cifrao').replace(' ','espaco')
+		return pergunta.replace('.',',').replace('@','_').replace('#','').replace('[','').replace(']','').replace('/','').replace('$','').replace(' ','')
 		
 Gui = Builder.load_file('main.kv')
 
