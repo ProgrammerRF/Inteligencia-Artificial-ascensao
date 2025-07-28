@@ -315,7 +315,11 @@ class HomePage(Screen):
 	    	resposta = self.ids['resposta_ia'].text
 	    	print("BET")
 	    else:
-	    	self.ids['resposta_ia'].text = str(historico_conteudo[0])
+	    	try:
+	    		self.ids['resposta_ia'].text = str(historico_conteudo[0])
+	    	except:
+	    		pass
+	    		
 	    	resposta = self.ids['resposta_ia'].text
 	    	print()
 	    	print('what are you selling?')
@@ -849,6 +853,11 @@ class Mudar_Email(Screen):
 				
 				foto_perfil = firebase_app.get(f'/Usuarios/{email_formatado}/foto_perfil',None)
 				
+				try:
+					self.historico = firebase_app.get(f'/Usuarios/{email_formatado}/historico',None)
+				except:
+					pass
+				
 				nome = firebase_app.get(f'/Usuarios/{email_formatado}/nome',None)
 				
 				senha = firebase_app.get(f'/Usuarios/{email_formatado}/senha',None)
@@ -868,6 +877,7 @@ class Mudar_Email(Screen):
 				dados_cliente = {
 				'email': self.ids['campo_alterar_email'].text,
 				'foto_perfil': foto_perfil,
+				'historico':self.historico,
 				'nome': nome,
 				'senha': senha
 				}
@@ -911,9 +921,14 @@ class Historico_Conversas(Screen):
 					pass
 				else:
 					grid = FloatLayout(size_hint_y=None,height=140)
-					self.button = Button(text=str(palavra),pos_hint={'center_x':0.5,'center_y':0.2},size_hint=(0.9,None),background_color=(0,0,0,0),size_hint_y=None,height=200)
+					self.button = Button(text=str(palavra),pos_hint={'center_x':0.5,'center_y':0.2},size_hint=(0.5,None),size_hint_y=None,background_color=(0,0,0,0),height=100)
 					self.button.bind(on_press=self.conversa_arquivada)
+					self.botao_excluir = Button(text=str(palavra),color=(0,0,0,0),pos_hint={'center_x':0.9,'center_y':0.2},size_hint=(0.1,None),size_hint_y=None,height=80,background_color=(0,0,0,0))
+					self.botao_excluir.bind(on_press=self.excluir_conversa_arquivada)
+					self.foto_excluir = Image(pos_hint={'center_x':0.9,'center_y':0.2},size_hint=(0.1,None),size_hint_y=None,height=80,source='fotos/excluir2.png')
+					grid.add_widget(self.botao_excluir)
 					grid.add_widget(self.button)
+					grid.add_widget(self.foto_excluir)
 					self.ids['float'].add_widget(grid)
 		except Exception as erro:
 			print('Erro')
@@ -928,6 +943,33 @@ class Historico_Conversas(Screen):
 		if key == 27:
 			self.manager.current = 'configuracoes'
 			return True
+			
+	def excluir_conversa_arquivada(self,instance,*args):
+			historico_nome.clear()
+			historico_conteudo.clear()
+			historico_nome.append(instance.text)
+			
+			print()
+			print('EXCLUIR CONVERSA')
+			print(instance.text)
+			print()
+			
+			email = str(user_email[0])
+			
+			email_formatado = email.replace('.',',').replace('@','_')
+			
+			print()
+			print(historico_nome[0])
+			print()
+			
+			url = f"https://inteligencia-artificial-37d91-default-rtdb.firebaseio.com/Usuarios/{email_formatado}/historico/{historico_nome[0]}.json" 
+			requests.delete(url)
+			
+			self.manager.current = 'homepage'
+			
+			#teste = firebase_app.get(f'/Usuarios/{email_formatado}/historico/{historico_nome[0]}',None)
+			
+			#print(teste)
 			
 	def conversa_arquivada(self,instance,*args):
 		try:
