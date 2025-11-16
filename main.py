@@ -1,8 +1,11 @@
-#!/user/bin/env python
-#-*-coding:utf8-*-
-#qpy:3
-#qpy:kivy
+#!/user/bin/env python3 # O comando env procura a localização do interpretador no dispositivo
+#-*-coding:utf-8-*- # Define a codificação UTF-8. opcional no python3
+#qpy:3 # Define o uso do python3
+#qpy:kivy # Define o uso do kivy para criar interface gráfica
 
+# Versão Mobile
+
+# Metadados
 __Author__ = "Rafael Moraes De Oliveira"
 __Date__ = "Sábado (08/03/2025)"
 
@@ -21,9 +24,14 @@ from kivy.uix.image import Image
 import os
 import requests
 import socket
+import time
 from firebase import firebase
 from kivy.core.window import Window
+from texto import fala, parar_audio
+from kivy.animation import Animation
+from kivy.clock import Clock
 
+import threading 
 #Carrega as variaveis do .env
 from dotenv import load_dotenv
 
@@ -47,24 +55,39 @@ E a lista user_email tambem inicializa vazia, porém quando o usuario faz login 
 essas listas tem o objetivo de manter os dados persistentes no app sem ter que fazer excessivas consultas no banco de dados.
 """
 
-user_name = []
-photo_profile = []
-user_email = []
-historico_nome = []
-historico_conteudo = []
+user_name = [] # Essa lista global armazena o nome do usuario
+photo_profile = [] # Essa lista armazena o numerovda foto selecionada pelo usuario
+user_email = [] # Essa lista contem o email do usuario
+historico_nome = [] # Essa lista contem a pergunta feita pelo usuario
+historico_conteudo = [] # Essa lista contem a resposta da IA
+ativar = True # Essa lista contem a decisão do usuario referente a voz da IA
+contador = 0
 
-class Menu(Screen):
-    def __init__(self,**kwargs):
+class Menu(Screen):	
+    def __init__(self,password=0,**kwargs):
+        # Metodo construtor que inicializa a tels e repassa os parametros adicionados para a superclasse 
         super().__init__(**kwargs)
+        self.password = 0 
+        
+        # Essa função carrega novamente os parametros da classe Screen e mantem os parametros adicionados
 
     def on_pre_enter(self):
+        global ativar
         """Assim que o usuario inicializa o programa a tecla voltar do android recebe a funcionalidade de apresentar um popup antes de encerrar o app perguntando se o usuario quer realmente fechar o programa"""
         Window.bind(on_keyboard=self.tecla_voltar)
+        parar_audio(3)
+        fala(3,'Olá, para acessar a plataforma faça login.','Audios/resposta_ia.mp3',ativar)
+        
+        if ativar == True:
+        	self.ids['icone_audio'].source = 'fotos/desativar_audio.png'
+        else:
+        	self.ids['icone_audio'].source = 'fotos/ativar_audio.png'
+        
 
     def tecla_voltar(self,window,key,*args):
         """ 27 é o numero correspondente a tecla voltar do android. quando o usuario pressiona essa tecla chama a função sair que abre um Popup perguntando se o usuario realmente quer sair.
         """
-        if key == 27:
+        if key == 27: # Se o usuario pressionar o botão de voltar no android ou a tecla ESC no computador o PopUp é chamado
         	self.sair()
         	return True
        
@@ -89,18 +112,31 @@ class Menu(Screen):
         float.add_widget(bt2_image)
         float.add_widget(bt2)
         
-        self.popup = Popup(title=''.center(90),content=float,pos_hint={'right':1,'top':0.7},size_hint=(1,0.30),background="fotos/fundo_preto.png")
+        self.popup = Popup(title=''.center(90),content=float,pos_hint={'right':1,'top':0.7},size_hint=(1,0.30),background='fotos/aurora.jpg')
         
+        parar_audio(3)
+        fala(3,'Se você deseja sair pressione Sim','Audios/resposta_ia.mp3',ativar)
+        
+        anim = Animation(pos_hint={'right':0.80,'top':0.7},duration=0.1) + Animation(pos_hint={'right':1.30,'top':0.7},duration=0.1) + Animation(pos_hint={'right':1,'top':0.7},duration=0.1)
+        anim.start(self.popup)
+        
+        anim_color = Animation(color=(0,1,0,1)) + Animation(color=(1,0,0,1))
+        anim_color.repeat = True
+        anim_color.start(bt1)
         self.popup.open()
     
     def formatar_email(self,email,*args):
         return email.replace('.',',').replace('@','_')
     
     def mostrarsenha(self):
-        self.ids['senha_user'].password = False
-        
-    def ocultarsenha(self):
-        self.ids['senha_user'].password = True
+        if self.password == 0:
+        	self.password = 1
+        	self.ids['imagemsenha'].source = 'fotos/ocultarsenha.png'
+        	self.ids['senha_user'].password = False
+        else:
+        	self.password = 0
+        	self.ids['imagemsenha'].source = 'fotos/mostrarsenha.png'
+        	self.ids['senha_user'].password = True
         
     def verificar_conexao(self):
     	try:
@@ -126,14 +162,24 @@ class Menu(Screen):
         
         if email == '':
         	self.ids['label_error'].text = 'Digite seu E-mail'
+        	parar_audio(3)
+        	fala(3,'Digite seu E-mail','Audios/resposta_ia.mp3',ativar)
         elif '@' not in email:
         	self.ids['label_error'].text = 'E-mail deve conter @'
+        	parar_audio(3)
+        	fala(3,'Seu E-mail deve conter @','Audios/resposta_ia.mp3',ativar)
         elif '.com' not in email:
         	self.ids['label_error'].text = 'E-mail deve conter .com'
+        	parar_audio(3)
+        	fala(3,'Seu E-mail deve conter .com','Audios/resposta_ia.mp3',ativar)
         elif senha == '':
         	self.ids['label_error'].text = 'Digite uma senha'
+        	parar_audio(3)
+        	fala(3,'Digite sua senha','Audios/resposta_ia.mp3',ativar)
         elif len(senha) < 6:
         	self.ids['label_error'].text = 'A senha deve conter pelo menos 6 digitos'
+        	parar_audio(3)
+        	fala(3,'Sua senha deve ter pelo menos 6 digitos','Audios/resposta_ia.mp3',ativar)
         else:
         	try:
         		email_formatado = self.formatar_email(email)
@@ -158,21 +204,48 @@ class Menu(Screen):
 	        			user_name.append(nome_usuario)
 	        			user_email.append(email_formatado)
 	        			photo_profile.append(foto_perfil)
+	        			parar_audio(3)
+	        			fala(3,f'Olá, {user_name}. Seja muito bem vindo a ascensão. Como posso te ajudar hoje ','Audios/resposta_ia.mp3',ativar)
 	        			
 	        			self.manager.current = 'homepage'
 	        		else:
 	        			self.ids['label_error'].text = 'Senha Incorreta'
+	        			parar_audio(3)
+	        			fala(3,'Sua senha está incorreta','Audios/resposta_ia.mp3',ativar)
 	        	else:
 	        	    	self.ids['label_error'].text = 'Email não cadastrado' 
+	        	    	parar_audio(3)
+	        	    	fala(3,'Seu E-mail não está cadastrado','Audios/resposta_ia.mp3',ativar)
         		
         	except Exception as c:
         		print(c)
         
     def saida(self,*args):
+        parar_audio(3)
+        fala(3,'Vá em paz. Volte sempre','Audios/resposta_ia.mp3',ativar)
+        time.sleep(3)
         exit()
         
     def dispensar(self,*args):
+       parar_audio(3)
+       fala(3,'Fico feliz por ter decidido ficar','Audios/resposta_ia.mp3',ativar)
        self.popup.dismiss()
+       
+    def desativar_audio(self):
+    	global ativar
+    	global contador
+    	if contador == 0:
+    		contador = 1
+	    	ativar = False
+	    	parar_audio(3)
+	    	fala(3,'Sistema de áudio desativado','Audios/resposta_ia.mp3',ativar=True)
+	    	self.ids['icone_audio'].source = 'fotos/ativar_audio.png'
+    	elif contador == 1:
+	    	contador = 0
+	    	ativar = True
+	    	parar_audio(3)
+	    	fala(3,'Sistema de áudio ativado','Audios/resposta_ia.mp3',ativar=True)
+	    	self.ids['icone_audio'].source = 'fotos/desativar_audio.png'
          	
         
 class LabelButton(ButtonBehavior,Label):
@@ -182,8 +255,12 @@ class LabelButton(ButtonBehavior,Label):
 class Cadastro(Screen):
 	def __init__(self,**kwargs):
 		super().__init__(**kwargs)
+		self.password = 0
+		self.password2 = 0
 		
 	def on_pre_enter(self):
+		parar_audio(3)
+		fala(3,'Se você deseja se cadastrar, preencha os campos do formulário','Audios/resposta_ia.mp3',ativar)
 		Window.bind(on_keyboard=self.tecla_voltar)
 	
 	def tecla_voltar(self,window,key,*args):
@@ -199,16 +276,24 @@ class Cadastro(Screen):
 		return email.replace('.',',').replace('@','_')
 		
 	def mostrarsenha1(self):
-		self.ids['senha1_input'].password = False
+		if self.password == 0:
+			self.password = 1
+			self.ids['imagemsenha1'].source = 'fotos/ocultarsenha.png'
+			self.ids['senha1_input'].password = False
+		else:
+			self.password = 0
+			self.ids['imagemsenha1'].source = 'fotos/mostrarsenha.png'
+			self.ids['senha1_input'].password = True
 	
 	def mostrarsenha2(self):
-		self.ids['senha2_input'].password = False
-	
-	def ocultarsenha1(self):
-		self.ids['senha1_input'].password = True
-	
-	def ocultarsenha2(self):
-		self.ids['senha2_input'].password = True
+		if self.password2 == 0:
+			self.password2 = 1
+			self.ids['imagemsenha2'].source = 'fotos/ocultarsenha.png'
+			self.ids['senha2_input'].password = False
+		else:
+			self.password2 = 0
+			self.ids['imagemsenha2'].source = 'fotos/mostrarsenha.png'
+			self.ids['senha2_input'].password = True
 		
 	def verificar_conexao(self,*args):
 		try:
@@ -246,27 +331,43 @@ class Cadastro(Screen):
 		if email == '':
 			self.ids['label_error'].text = 'Digite seu E-mail'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Digite seu E-mail','Audios/resposta_ia.mp3',ativar)
 		elif '@' not in email:
 			self.ids['label_error'].text = 'E-mail deve conter @'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Seu E-mail deve conter @','Audios/resposta_ia.mp3',ativar)
 		elif '.com' not in email:
 			self.ids['label_error'].text = 'E-mail deve conter .com'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Seu E-mail deve conter .com','Audios/resposta_ia.mp3',ativar)
 		elif nome == '':
 			self.ids['label_error'].text = 'Digite seu nome'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Digite seu nome','Audios/resposta_ia.mp3',ativar)
 		elif senha1 == '':
 			self.ids['label_error'].text = 'Digite uma senha'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Digite sua senha','Audios/resposta_ia.mp3',ativar)
 		elif len(senha1) < 6:
 			self.ids['label_error'].text = 'A senha deve conter pelo menos 6 digitos'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Sua senha deve ter pelo menos 6 dígitos','Audios/resposta_ia.mp3',ativar)
 		elif senha2 == '':
 			self.ids['label_error'].text = 'Digite a senha novamente'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Digite sua senha novamente','Audios/resposta_ia.mp3',ativar)
 		elif senha1 != senha2:
 			self.ids['label_error'].text = 'As senhas não conferem'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'As senhas não conferem','Audios/resposta_ia.mp3',ativar)
 		else:
 			self.ids['label_error'].text = ''
 			self.ids['nome_input'].text = ''
@@ -282,6 +383,8 @@ class Cadastro(Screen):
 				if validacao:
 					self.ids['label_error'].color = 1,0,0,1
 					self.ids['label_error'].text = 'Email já cadastrado'
+					parar_audio(3)
+					fala(3,'Esse E-mail já está cadastrado na plataforma','Audios/resposta_ia.mp3',ativar)
 				else:
 					dados_cliente = {
 					'email':email,
@@ -293,6 +396,8 @@ class Cadastro(Screen):
 					user_name.append(nome)
 					photo_profile.append('foto1.png')
 					resultado = firebase_app.put('/Usuarios',email_formatado,dados_cliente)
+					parar_audio(3)
+					fala(3,f'Olá, {user_name}. Seja muito bem vindo a ascensão. Como posso te ajudar hoje ','Audios/resposta_ia.mp3',ativar)
 					
 					self.manager.current = 'homepage'
 			except:
@@ -305,6 +410,7 @@ class HomePage(Screen):
 		super().__init__(**kwargs)
 		
 	def on_pre_enter(self):
+	    # Conecta e chama a função tecla_voltar
 	    Window.bind(on_keyboard=self.tecla_voltar)
 	    
 	    nome_do_usuario = str(user_name)
@@ -313,7 +419,6 @@ class HomePage(Screen):
 	    
 	    if len(historico_nome) == 0:
 	    	resposta = self.ids['resposta_ia'].text
-	    	print("BET")
 	    else:
 	    	try:
 	    		self.ids['resposta_ia'].text = str(historico_conteudo[0])
@@ -321,80 +426,6 @@ class HomePage(Screen):
 	    		pass
 	    		
 	    	resposta = self.ids['resposta_ia'].text
-	    	print()
-	    	print('what are you selling?')
-	    	print(resposta)
-	    	print()
-	    	
-	    	separar = resposta.split()
-	    	
-	    	if len(separar) < 100:
-	    		self.ids['resposta_ia'].size_hint = (1,3.90)
-	    		
-	    	elif len(separar) == 100:
-	    	 	self.ids['resposta_ia'].size_hint = (1,3.90)
-	    	 	
-	    	elif len(separar) < 250 and len(separar) > 100:
-	    	 	self.ids['resposta_ia'].size_hint = (1,3.90)
-	    	 	
-	    	elif len(separar) == 250:
-	    	 	self.ids['resposta_ia'].size_hint = (1,3.90)
-	    	 	
-	    	elif len(separar) < 500 and len(separar) > 250:
-	    	 	self.ids['resposta_ia'].size_hint = (1,5.10)
-	    	
-	    	elif len(separar) == 500:
-	    	 	self.ids['resposta_ia'].size_hint = (1,5.10)
-	    	 	
-	    	elif len(separar) < 750 and len(separar) > 500:
-	    	 	self.ids['resposta_ia'].size_hint = (1,5.10)
-	    	
-	    	elif len(separar) == 750:
-	    		self.ids['resposta_ia'].size_hint = (1,5.10)
-	    		
-	    	elif len(separar) < 1000 and len(separar) > 750:
-	    	    self.ids['resposta_ia'].size_hint = (1,5.10)
-	    	    
-	    	elif len(separar) == 1000:
-	    	 	self.ids['resposta_ia'].size_hint = (1,5.10)
-	    	 	
-	    	elif len(separar) < 1250 and len(separar) > 1000:
-	    	 	self.ids['resposta_ia'].size_hint = (1,5.20)
-	    	
-	    	elif len(separar) == 1250:
-	    	 	self.ids['resposta_ia'].size_hint = (1,5.20)
-	    	 	
-	    	elif len(separar) < 1500 and len(separar) > 1250:
-	    	 	self.ids['resposta_ia'].size_hint = (1,6.20)
-	    	 	
-	    	elif len(separar) == 1500:
-	    	 	self.ids['resposta_ia'].size_hint = (1,6.20)
-	    	 	
-	    	elif len(separar) < 1750 and len(separar) > 1500:
-	    	 	self.ids['resposta_ia'].size_hint = (1,7.10)
-	    	
-	    	elif len(separar) == 1750:
-	    	 	self.ids['resposta_ia'].size_hint = (1,7.10)
-	    	 	
-	    	elif len(separar) < 2000 and len(separar) > 1750:
-	    	 	self.ids['resposta_ia'].size_hint = (1,8.20)
-	    	 	
-	    	elif len(separar) == 2000:
-	    	 	self.ids['resposta_ia'].size_hint = (1,8.20)
-	    	 	
-	    	elif len(separar) < 2232 and len(separar) > 2000:
-	    	 	self.ids['resposta_ia'].size_hint = (1,9)
-	    	 	
-	    	elif len(separar) == 2232:
-	    		self.ids['resposta_ia'].size_hint = (1,9)
-	    	
-	    	linhas = []
-	    	for i in range(0, len(separar), 6):
-		    	linha = ' '.join(separar[i:i+6])
-		    	linhas.append(linha)
-		    	self.ids['resposta_ia'].text = '\n'.join(linhas).replace('.','\n\n').strip()
-		    
-
 	    
 	    try:
 		    email = user_email[0]
@@ -407,21 +438,15 @@ class HomePage(Screen):
 		    foto = firebase_app.get(f'/Usuarios/{email_formatado}/foto_perfil',None)
 		    nome = firebase_app.get(f'/Usuarios/{email_formatado}/nome',None)
 		    
-		    print("WHERE IS THE ERROR")
-		    print(nome)
-		    
 		    self.ids['user_name'].text = nome or ''
-		    
-		    print(email)
-		    print()
-		    print(foto)
-		    
+		    	    
 		    foto_perfil = str(photo_profile)
 		    foto_perfil_formatada = foto_perfil.replace('[','').replace("]",'').replace("'",'')
 		    
-		    print(os.getcwd())
-		    
-		    self.ids['foto_usuario'].source = f'foto_usuario/{foto}'
+		    if 'foto_usuario' in os.getcwd():
+		    	self.ids['foto_usuario'].source = f'{foto}'
+		    else:
+		    	self.ids['foto_usuario'].source = f'foto_usuario/{foto}'
 	    	
 	    except Exception as erro:
 	    	print(erro)
@@ -444,6 +469,9 @@ class HomePage(Screen):
 	       bt1 = Button(text='Sim',pos_hint={'right':0.42,'top':0.6},size_hint=(0.40,0.30),background_color=(0,0,0,0))
 	       bt1.bind(on_press=self.saida)
 	       
+	       parar_audio(3)
+	       fala(3,'Se você deseja sair, pressione Sim','Audios/resposta_ia.mp3',ativar)
+	       
 	       bt1_image = Image(source='fotos/Botao.png',pos_hint={'right':0.42,'top':0.6},size_hint=(0.40,0.30))
 	       
 	       bt2 = Button(text='Não',pos_hint={'right':0.95,'top':0.6},size_hint=(0.40,0.30),background_color=(0,0,0,0))
@@ -457,7 +485,14 @@ class HomePage(Screen):
 	       float.add_widget(bt2_image)
 	       float.add_widget(bt2)
 	       
-	       self.popup = Popup(title=''.center(90),content=float,pos_hint={'right':1,'top':0.7},size_hint=(1,0.30),background="fotos/fundo_preto.png")
+	       self.popup = Popup(title=''.center(90),content=float,pos_hint={'right':1,'top':0.7},size_hint=(0.40,0.30),background="fotos/aurora.jpg")
+	       
+	       anim = Animation(pos_hint={'right':0.75,'top':0.7},size_hint=(1,0.30),duration=0.1) + Animation(pos_hint={'right':1.20,'top':0.7},size_hint=(1,0.30),duration=0.1) + Animation(pos_hint={'right':1,'top':0.7},size_hint=(1,0.30),duration=0.1)
+	       anim.start(self.popup)
+	       
+	       anim_color = Animation(color=(0,1,0,1)) + Animation(color=(1,0,0,1))
+	       anim_color.repeat = True
+	       anim_color.start(bt1)
 	       
 	       self.popup.open()
 	       
@@ -471,127 +506,66 @@ class HomePage(Screen):
 		
 	def dispensar(self,*args):
 		self.popup.dismiss() 
+		parar_audio(3)
+		fala(3,'Como posso te ajudar?','Audios/resposta_ia.mp3',ativar)
 		
 	def formatar_pergunta(self,pergunta,*args):
 		return pergunta.replace('.','').replace('@','').replace('#','').replace('[','').replace(']','').replace('/','').replace('$','').replace('?','')
 		
-	
-	def send_question(self, *args):
-		pergunta = self.ids['entrada_usuario'].text
+	def iniciar_processo(self):
+		Clock.schedule_once(lambda dt: self.processo_iniciado())
 		
-		headers = { "Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json",}
+	def processo_iniciado(self):
+		self.pergunta = self.ids['entrada_usuario'].text
+		headers = {'Authorization': f"Bearer {API_KEY}", 'Content_Type': 'application/json'}
+		data = {
+		"model": "Qwen/Qwen2.5-7B-Instruct-Turbo",
+		"messages": [{"role":"user",'content': self.pergunta}]		
+		}
+		threading.Thread(target=self.processando,args=(self.pergunta,headers,data),daemon=True).start()
 		
-		data = {"model": "mistralai/Mistral-7B-Instruct-v0.2","messages": [{"role": "user", "content": pergunta}]}
-		
-		response = requests.post(API_URL, headers=headers, json=data)
-		
-		self.ids['entrada_usuario'].text = ''
+	def processando(self,pergunta,headers,data):
+		response = requests.post(API_URL, headers=headers,json=data,timeout=30)
 		
 		if response.status_code == 200:
-		    resposta = response.json()['choices'][0]['message']['content']
-		    self.ids['resposta_ia'].text = "Resposta: " + resposta
-		    
-		    resposta = self.ids['resposta_ia'].text
-		    
-		    pergunta_formatada = self.formatar_pergunta(pergunta)
-		    
-		    email = str(user_email[0])
-		    
-		    email_formatado = email.replace('.',',').replace('@','_')
-		    
-		    info = {
-		    f'{pergunta_formatada}': f"{resposta}"
-		    }
-		    
-		    historico_conversa = firebase_app.patch(f'/Usuarios/{email_formatado}/historico',info)
-	
-		    separar = resposta.split()
-		    
-		    print(len(separar))
-		    
-		    if len(separar) < 100:
-		    	self.ids['resposta_ia'].size_hint = (1,3.90)
-		    	
-		    elif len(separar) == 100:
-		    	self.ids['resposta_ia'].size_hint = (1,3.90)
-		    
-		    elif len(separar) < 250 and len(separar) > 100:
-		    	self.ids['resposta_ia'].size_hint = (1,3.90)
-		    
-		    elif len(separar) == 250:
-		    	self.ids['resposta_ia'].size_hint = (1,3.90)
-		    	
-		    elif len(separar) < 500 and len(separar) > 250:
-		    	self.ids['resposta_ia'].size_hint = (1,5.10)
-		    
-		    elif len(separar) == 500:
-		    	self.ids['resposta_ia'].size_hint = (1,5.10)
-		    	
-		    elif len(separar) < 750 and len(separar) > 500:
-		    	self.ids['resposta_ia'].size_hint = (1,5.10)	    		
-		    elif len(separar) == 750:
-		    	self.ids['resposta_ia'].size_hint = (1,5.10)
-		    	
-		    elif len(separar) < 1000 and len(separar) > 750:
-		    	self.ids['resposta_ia'].size_hint = (1,5.10)
-		    	
-		    elif len(separar) == 1000:
-		    	self.ids['resposta_ia'].size_hint = (1,5.10)
-		    	
-		    elif len(separar) < 1250 and len(separar) > 1000:
-		    	self.ids['resposta_ia'].size_hint = (1,5.20)
-		    	
-		    elif len(separar) == 1250:
-		    	self.ids['resposta_ia'].size_hint = (1,5.20)
-		    	
-		    elif len(separar) < 1500 and len(separar) > 1250:
-		    	self.ids['resposta_ia'].size_hint = (1,6.20)
-		    	
-		    elif len(separar) == 1500:
-		    	self.ids['resposta_ia'].size_hint = (1,6.20)
-		    
-		    elif len(separar) < 1750 and len(separar) > 1500:
-		    	self.ids['resposta_ia'].size_hint = (1,7.10)
-		    	
-		    elif len(separar) == 1750:
-		    	self.ids['resposta_ia'].size_hint = (1,7.10)
-		    	
-		    elif len(separar) < 2000 and len(separar) > 1750:
-		    	self.ids['resposta_ia'].size_hint = (1,8.20)
-		    	
-		    elif len(separar) == 2000:
-		    	self.ids['resposta_ia'].size_hint = (1,8.20)
-		    	
-		    elif len(separar) < 2232 and len(separar) > 2000:
-		    	self.ids['resposta_ia'].size_hint = (1,9)
-		    	
-		    elif len(separar) == 2232:
-		    	self.ids['resposta_ia'].size_hint = (1,9)
-	
-	
-	
-	
-		    
-		    print(len(separar))
-		    # 500
-		    
-		    # Organizando em linhas de 8 palavras
-		    linhas = []
-		    for i in range(0, len(separar), 6):
-		        linha = ' '.join(separar[i:i+6])
-		        linhas.append(linha)
-		    
-		    self.ids['resposta_ia'].text = '\n'.join(linhas).replace('.','\n\n').strip()
-		else:
-			self.ids['resposta_ia'].text = "Erro: " + str(response.json())
+			try:
+				resposta_text = response.json()['choices'][0]['message']['content']
+				self.ids['resposta_ia'].text = '\nResposta\n\n' + resposta_text.strip()
+				self.resposta = self.ids['resposta_ia'].text
+				threading.Thread(target=self.atualizando_texto,daemon=True).start()
+							
+			except Exception as e:
+				self.ids['resposta_ia'].text = f"Erro {e}"
+				
+	def atualizando_texto(self):
+		threading.Thread(target=self.atualizando_ui,daemon=True).start()
 		
-			
-		
-		
-		
+	def atualizando_ui(self):
+				parar_audio(3)
+				fala(3,self.resposta,'Audios/resposta_ia.mp3',ativar)
+				
+				pergunta_formatada = self.formatar_pergunta(self.pergunta)
+				
+				email = str(user_email[0])
+				
+				email_formatado = email.replace('.',',').replace('@','_')
+				
+				info = {f'{pergunta_formatada}': f"{self.resposta}"}
+				
+				historico_conversa = firebase_app.patch(f'/Usuarios/{email_formatado}/historico',info)
+				
+				Clock.schedule_once(lambda dt: self.ids['resposta_ia'].texture_update(), 0.1)
+				Clock.schedule_once(
+				lambda dt: setattr(
+					self.ids['resposta_ia'],
+					'height',
+					self.ids['resposta_ia'].texture_size[1] + 50 # Espaço extra
+				), 0.15
+				)
+				
 	def alterar_posicao(self):
 		if self.ids['entrada_usuario'].focus == True:
-			self.ids['entrada_usuario'].pos_hint = {'right':1,'top':0.40}
+			self.ids['entrada_usuario'].pos_hint = {'right':1,'top':0.50}
 		else:
 			self.ids['entrada_usuario'].pos_hint = {'right':1,'top':0.18}
 			
@@ -600,12 +574,37 @@ class Configuracoes(Screen):
 		super().__init__(**kwargs)
 		
 	def on_pre_enter(self):
+		parar_audio(3)
+		fala(3,'Tela de configurações','Audios/resposta_ia.mp3',ativar)
 		Window.bind(on_keyboard=self.tecla_voltar)
+		
+		if ativar == True:
+			self.ids['icone_audio'].source = 'fotos/desativar_audio.png'
+		else:
+			self.ids['icone_audio'].source = 'fotos/ativar_audio.png'
 	
 	def tecla_voltar(self,window,key,*args):
 		if key == 27:
 			self.manager.current = 'homepage'
 			return True
+			
+	def desativar_audio(self):
+		global ativar
+		global contador
+		
+		if contador == 0:
+			ativar = False
+			contador = 1
+			self.ids['icone_audio'].source = 'fotos/ativar_audio.png'
+			parar_audio(3)
+			fala(3,'Sistema de áudio desativado','Audios/resposta_ia.mp3',ativar=True)
+		elif contador == 1:
+			ativar = True
+			contador = 0
+			self.ids['icone_audio'].source = 'fotos/desativar_audio.png'
+			parar_audio(3)
+			fala(3,'Sistema de áudio ativado','Audios/resposta_ia.mp3',ativar=True)
+			
 	
 	def on_pre_leave(self):
 		Window.unbind(on_keyboard=self.tecla_voltar)
@@ -619,6 +618,8 @@ class ImageButton(ButtonBehavior,Image):
 
 class Mudar_Foto(Screen):
     def on_pre_enter(self):
+        parar_audio(3)
+        fala(3,'Para alterar a foto de perfil, selecione uma das opções disponíveis','Audios/resposta_ia.mp3',ativar)
         Window.bind(on_keyboard=self.tecla_voltar)
         
         scroll = self.ids['teste']
@@ -628,15 +629,19 @@ class Mudar_Foto(Screen):
         grid.bind(minimum_height=grid.setter('height'))
         
         print(os.getcwd())
-
-        os.chdir("foto_usuario")
+        
+        if 'foto_usuario' in os.getcwd():
+        	pass
+        else:
+        	os.chdir("foto_usuario")
+        	
         fotos = sorted(os.listdir())
 
         for foto in fotos:
             if foto.endswith('.png') or foto.endswith('.jpg'):
                 img = ImageButton(source=os.path.join(os.getcwd(), foto),
                             size_hint_y=None,
-                            height=200, 
+                            height=170, 
                             allow_stretch=True,
                             keep_ratio=True)
                 img.bind(on_press=lambda instance, foto=foto:self.mudar_foto_perfil(foto))
@@ -656,15 +661,22 @@ class Mudar_Foto(Screen):
 	    	requisicao = requests.patch(f"https://inteligencia-artificial-37d91-default-rtdb.firebaseio.com/Usuarios/{nome_usuario_formatado}.json",data=info)
 	    	print(requisicao.status_code)
 	    	print(requisicao.text)
-	    	os.chdir('..')
+	    	parar_audio(3)
+	    	fala(3,'Foto alterada com sucesso','Audios/resposta_ia.mp3',ativar)
 	    	self.manager.current = 'homepage'
     	except:
     		self.ids["label_error"].text = 'Você não está conectado a internet'
     		self.ids['label_error'].color = 1,0,0,1
     		
+    		
     def on_pre_leave(self):
     	Window.unbind(on_keyboard=self.tecla_voltar)
     	self.ids['label_error'].text = ''
+    	
+    	if 'foto_usuario' in os.getcwd():
+    		os.chdir('..')
+    	else:
+    		pass
     
     def tecla_voltar(self,window,key,*args):
     	if key == 27:
@@ -676,6 +688,8 @@ class Mudar_Nome(Screen):
 		super().__init__(**kwargs)
 		
 	def on_pre_enter(self):
+		parar_audio(3)
+		fala(3,'Se você deseja mudar o nome, digite o nome de preferencia','Audios/resposta_ia.mp3',ativar)
 		Window.bind(on_keyboard=self.tecla_voltar)
 		
 	def mudar_nome_perfil(self,**args):
@@ -689,6 +703,8 @@ class Mudar_Nome(Screen):
 	    	requisicao = requests.patch(f"https://inteligencia-artificial-37d91-default-rtdb.firebaseio.com/Usuarios/{nome_usuario_formatado}.json",data=info)
 	    	print(requisicao.status_code)
 	    	print(requisicao.text)
+	    	parar_audio(3)
+	    	fala(3,'Nome alterado com sucesso','Audios/resposta_ia.mp3',ativar)
 	    	self.manager.current = 'homepage'
 	    except Exception as erro:
 	    	print(erro)
@@ -708,8 +724,13 @@ class Mudar_Nome(Screen):
 class Mudar_Senha(Screen):
 	def __init__(self,**kwargs):
 		super().__init__(**kwargs)
+		self.password = 0
+		self.password2 = 0
+		self.password3 = 0
 		
 	def on_pre_enter(self):
+		parar_audio(3)
+		fala(3,'Se você deseja alterar sua senha, preencha os campos em branco','Audios/resposta_ia.mp3',ativar)
 		Window.bind(on_keyboard=self.tecla_voltar)
 		
 	def tecla_voltar(self,window,key,*args):
@@ -725,22 +746,34 @@ class Mudar_Senha(Screen):
 		return email.replace('.',',').replace('@','_')
 		
 	def mostrarsenha1(self):
-		self.ids['senha1_input'].password = False
+		if self.password == 0:
+			self.password = 1
+			self.ids['imagemsenha1'].source = 'fotos/ocultarsenha.png'
+			self.ids['senha1_input'].password = False
+		else:
+			self.password = 0
+			self.ids['imagemsenha1'].source = 'fotos/mostrarsenha.png'
+			self.ids['senha1_input'].password = True
 	
 	def mostrarsenha2(self):
-		self.ids['senha2_input'].password = False
+		if self.password2 == 0:
+			self.password2 = 1
+			self.ids['imagemsenha2'].source = 'fotos/ocultarsenha.png'
+			self.ids['senha2_input'].password = False
+		else:
+			self.password2 = 0
+			self.ids['imagemsenha2'].source = 'fotos/mostrarsenha.png'
+			self.ids['senha2_input'].password = True
 		
 	def mostrarsenha3(self):
-		self.ids['senha3_input'].password = False
-	
-	def ocultarsenha1(self):
-		self.ids['senha1_input'].password = True
-	
-	def ocultarsenha2(self):
-		self.ids['senha2_input'].password = True
-		
-	def ocultarsenha3(self):
-		self.ids['senha3_input'].password = True
+		if self.password3 == 0:
+			self.password3 = 1
+			self.ids['imagemsenha3'].source = 'fotos/ocultarsenha.png'
+			self.ids['senha3_input'].password = False
+		else:
+			self.password3 = 0
+			self.ids['imagemsenha3'].source = 'fotos/mostrarsenha.png'
+			self.ids['senha3_input'].password = True
 		
 	def mudar_senha(self):
 		email_formatado = str(user_email[0])
@@ -750,37 +783,55 @@ class Mudar_Senha(Screen):
 		if self.ids['senha1_input'].text == '':
 			self.ids['label_error'].text = 'Digite sua senha antiga'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Digite sua senha antiga','Audios/resposta_ia.mp3',ativar)
 			
 		elif len(self.ids['senha1_input'].text) < 6:
 			self.ids['label_error'].text = 'Sua senha antiga deve ter pelo menos 6 caracteres'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Sua senha antiga deve ter pelo menos 6 caracteres','Audios/resposta_ia.mp3',ativar)
 			
 		elif self.ids['senha2_input'].text == '':
 			self.ids['label_error'].text = 'Digite sua nova senha'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Digite sua nova senha','Audios/resposta_ia.mp3',ativar)
 			
 		elif len(self.ids['senha2_input'].text) < 6:
 			self.ids['label_error'].text = 'Sua nova senha deve ter pelo menos 6 caracteres'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Sua nova senha deve ter pelo menos 6 caracteres','Audios/resposta_ia.mp3',ativar)
 			
 		elif self.ids['senha3_input'].text == '':
 			self.ids['label_error'].text = 'Digite sua nova senha novamente'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Digite sua nova senha novamente','Audios/resposta_ia.mp3',ativar)
 			
 		elif len(self.ids['senha3_input'].text) < 6:
 			self.ids['label_error'].text = 'Sua nova senha deve ter pelo menos 6 caracteres'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Sua nova senha deve ter pelo menos 6 caracteres','Audios/resposta_ia.mp3',ativar)
 			
 		elif self.ids['senha2_input'].text != self.ids['senha3_input'].text:
 			self.ids['label_error'].text = 'As senhas não conferem'
+			parar_audio(3)
+			fala(3,'As duas senhas não conferem','Audios/resposta_ia.mp3',ativar)
 		
 		elif self.ids['senha1_input'].text == self.ids['senha2_input'].text and self.ids['senha3_input'].text:
 			self.ids['label_error'].text = 'Sua nova senha deve ser diferente da antiga'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Sua senha deve ser diferente da antiga','Audios/resposta_ia.mp3',ativar)
 			
 		elif self.ids['senha1_input'].text != validacao_senha:
 			self.ids['label_error'].text = 'Senha antiga está incorreta'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Sua senha antiga está incorreta','Audios/resposta_ia.mp3',ativar)
 		else:
 		    self.senha = self.ids['senha2_input'].text
 		    try:
@@ -797,6 +848,8 @@ class Mudar_Senha(Screen):
 		    	self.ids['senha2_input'].text = ''
 		    	self.ids['senha3_input'].text = ''
 		    	self.ids['label_error'].text = ''
+		    	parar_audio(3)
+		    	fala(3,'Senha alterada com sucesso','Audios/resposta_ia.mp3',ativar)
 		    	self.manager.current = 'homepage'
 		    except Exception as erro:
 		    	print(erro)
@@ -811,6 +864,8 @@ class Mudar_Email(Screen):
 		super().__init__(**kwargs)
 		
 	def on_pre_enter(self):
+		parar_audio(3)
+		fala(3,'Se você deseja mudar seu E-mail, digite o E-mail de preferencia','Audios/resposta_ia.mp3',ativar)
 		Window.bind(on_keyboard=self.tecla_voltar)
 		
 	def tecla_voltar(self,window,key,*args):
@@ -829,17 +884,25 @@ class Mudar_Email(Screen):
 		if email == '':
 			self.ids['label_error'].text = 'Digite o novo E-mail'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Digite seu novo E-mail','Audios/resposta_ia.mp3',ativar)
 			
 		elif '@' not in email:
 			self.ids['label_error'].text = 'O email deve conter @'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Seu E-mail deve conter @','Audios/resposta_ia.mp3',ativar)
 			
 		elif '.com' not in email:
 			self.ids['label_error'].text = 'O email deve conter .com'
 			self.ids['label_error'].color = 1,0,0,1
+			parar_audio(3)
+			fala(3,'Seu E-mail deve conter .com','Audios/resposta_ia.mp3',ativar)
 		
 		elif email == validacao_email:
 			self.ids['label_error'].text = 'O novo E-mail deve ser diferente do antigo'
+			parar_audio(3)
+			fala(3,'O novo E-mail deve ser diferente do antigo','Audios/resposta_ia.mp3',ativar)
 			
 		else:
 			self.email = self.ids['campo_alterar_email'].text
@@ -890,6 +953,8 @@ class Mudar_Email(Screen):
 				
 				self.ids['label_error'].text = ''
 				self.ids['campo_alterar_email'].text = ''
+				parar_audio(3)
+				fala(3,'E-mail alterado com sucesso','Audios/resposta_ia.mp3',ativar)
 				self.manager.current = 'homepage'
 				
 			except Exception as erro:
@@ -907,6 +972,8 @@ class Historico_Conversas(Screen):
 		super().__init__(**kwargs)
 		
 	def on_pre_enter(self):
+		parar_audio(3)
+		fala(3,'Se você deseja continuar ou excluir uma conversa anterior, selecione uma das opçōes disponíveis','Audios/resposta_ia.mp3',ativar)
 		Window.bind(on_keyboard=self.voltar)
 		
 		email = str(user_email[0])
@@ -922,8 +989,8 @@ class Historico_Conversas(Screen):
 				else:
 					grid = FloatLayout(size_hint_y=None,height=140)
 					self.button = Button(text=str(palavra),pos_hint={'center_x':0.5,'center_y':0.2},size_hint=(0.5,None),size_hint_y=None,background_color=(0,0,0,0),height=100)
-					self.button.bind(on_press=self.conversa_arquivada)
-					self.botao_excluir = Button(text=str(palavra),color=(0,0,0,0),pos_hint={'center_x':0.9,'center_y':0.2},size_hint=(0.1,None),size_hint_y=None,height=80,background_color=(0,0,0,0))
+					self.button.bind(on_press=self.iniciar_processo)
+					self.botao_excluir = Button(text=str(palavra),color=(0,0,0,0),pos_hint={'center_x':0.9,'center_y':0.2},size_hint=(0.1,None),size_hint_y=None,height=80,background_disabled_normal='',background_normal='',background_color=(0,0,0,0))
 					self.botao_excluir.bind(on_press=self.excluir_conversa_arquivada)
 					self.foto_excluir = Image(pos_hint={'center_x':0.9,'center_y':0.2},size_hint=(0.1,None),size_hint_y=None,height=80,source='fotos/excluir2.png')
 					grid.add_widget(self.botao_excluir)
@@ -937,9 +1004,6 @@ class Historico_Conversas(Screen):
 		self.ids['float'].clear_widgets()
 		
 	def voltar(self,window,key,*args):
-		print('*'*30)
-		print(key)
-		print('*'*30)
 		if key == 27:
 			self.manager.current = 'configuracoes'
 			return True
@@ -949,58 +1013,76 @@ class Historico_Conversas(Screen):
 			historico_conteudo.clear()
 			historico_nome.append(instance.text)
 			
-			print()
-			print('EXCLUIR CONVERSA')
-			print(instance.text)
-			print()
-			
 			email = str(user_email[0])
 			
 			email_formatado = email.replace('.',',').replace('@','_')
 			
-			print()
-			print(historico_nome[0])
-			print()
-			
 			url = f"https://inteligencia-artificial-37d91-default-rtdb.firebaseio.com/Usuarios/{email_formatado}/historico/{historico_nome[0]}.json" 
 			requests.delete(url)
 			
+			parar_audio(3)
+			fala(3,'Conversa Excluída com sucesso','Audios/resposta_ia.mp3',ativar)
+			
 			self.manager.current = 'homepage'
 			
-			#teste = firebase_app.get(f'/Usuarios/{email_formatado}/historico/{historico_nome[0]}',None)
+	def iniciar_processo(self,instance):
+		
+		self.manager.current = 'aguardando'
+		
+		self.instancia = instance
+		Clock.schedule_once(lambda dt: self.processo_iniciado())
+		
+	def processo_iniciado(self):
+		threading.Thread(target=self.conversa_arquivada,daemon=True).start()
 			
-			#print(teste)
-			
-	def conversa_arquivada(self,instance,*args):
+	def conversa_arquivada(self,*args):
+		parar_audio(3)
+		fala(3,'Carregando conversa','Audios/resposta_ia.mp3',ativar)
+		time.sleep(3)
 		try:
 			historico_nome.clear()
 			historico_conteudo.clear()
-			historico_nome.append(instance.text)
-			
-			print("""
-			OVER HERE STRANGER
-			{}
-			""".format(historico_nome))
+			historico_nome.append(self.instancia.text)
 			
 			email = str(user_email[0])
 			email_formatado = email.replace('@','_').replace('.',',')
 			
-			pergunta = instance.text
+			pergunta = self.instancia.text
 			self.historico_conteudo = firebase_app.get(f'/Usuarios/{email_formatado}/historico/{historico_nome[0]}',None)
 			historico_conteudo.append(self.historico_conteudo)
 			
-			print(f"""
-			!!!!!
-			{self.historico_conteudo}
-			!!!!!
-			""")
 		except Exception as erro:
 			print(erro)
 		
-		self.manager.current = 'homepage'
+		parar_audio(3)
+		fala(3,historico_conteudo[0],'Audios/resposta_ia.mp3',ativar)
+		
+		Clock.schedule_once(lambda dt: setattr(self.manager,'current','homepage'))
 
 	def formatar_pergunta(self,pergunta,*args):
 		return pergunta.replace('.',',').replace('@','_').replace('#','').replace('[','').replace(']','').replace('/','').replace('$','').replace(' ','')
+
+class Aguardando(Screen):
+	def __init__(self,**kwargs):
+		super().__init__(**kwargs)
+		self.frame = 0
+		
+	def on_pre_enter(self):
+		self.rotulo = Label(text='',pos_hint={'top':1,'right':1},size_hint=(1,1),font_size=55)
+		self.ids['float'].add_widget(self.rotulo)
+		
+		self.anim = Animation(color=(1,1,1,1),duration=3) + Animation(color=(0,1,0,1),duration=2) + Animation(color=(1,1,1,1),duration=3) + Animation(color=(0,0,1,1),duration=2) + Animation(color=(1,1,1,1),duration=3) + Animation(color=(1,0,0,1),duration=2)
+		self.anim.repeat = True
+		self.anim.start(self.rotulo)
+		Clock.schedule_interval(self.atualizar_texto,0.5)
+		
+	def atualizar_texto(self,dt):
+		pontos = '.' * (self.frame % 4)
+		self.rotulo.text = f"Carregando {pontos}"
+		self.frame += 1
+		
+	def on_pre_leave(self):
+		self.ids['float'].remove_widget(self.rotulo)
 		
 Gui = Builder.load_file('main.kv')
 
@@ -1016,6 +1098,7 @@ class Inteligencia_Artificial(App):
         sm.add_widget(Mudar_Senha(name='mudar_senha'))
         sm.add_widget(Mudar_Email(name='mudar_email'))
         sm.add_widget(Historico_Conversas(name='historico_conversas'))
+        sm.add_widget(Aguardando(name='aguardando'))
         return sm
 
 if __name__ == '__main__':

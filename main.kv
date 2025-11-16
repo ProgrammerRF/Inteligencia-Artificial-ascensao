@@ -1,25 +1,43 @@
+# Versão Mobile
 <Menu>:
     FloatLayout:
         pos_hint: {'right':1,'top':1}
         size_hint:1,1
+        
+        canvas: 
+        	Color:
+        		rgba: 1,1,1,1
+        	Rectangle:
+        		pos:self.pos
+        		size:self.size
+        		source:'fotos/aurora.jpg'
+        		
 	    	
-		        	    
-        Image:
-        	pos_hint:{'right':1,'top':1.25}
-       	 size_hint:1,1
-        	source:"fotos/terra.png"
+		
         LabelButton:
-            pos_hint:{'right':0.59,'top':1.49}
+            pos_hint:{'right':0.59,'top':1.45}
             size_hint:1,1
             text:'Sair'
-            font_size: 40
+            font_size: 43
             on_press:root.sair()
+        Image:
+        	id:icone_audio
+        	pos_hint:{'right':0.95,'top':1}
+        	size_hint:0.08,0.10
+        	source:'fotos/desativar_audio.png'
+        Button:
+        	text:''
+        	size_hint:0.10,0.10
+        	pos_hint:{'right':0.95,'top':1}
+        	background_color:0,0,0,0
+        	on_press:root.desativar_audio()
         Label:
-            pos_hint:{'right':1,'top':1.40}
+            id:titulo
+            pos_hint:{'right':1,'top':1.28}
             size_hint:1,1
             text:'Ascensão'
             color:0,1,0,1
-            font_size: 60
+            font_size: 65
         TextInput:
         	id:email_user
         	pos_hint:{'right':1,'top':0.6}
@@ -38,11 +56,10 @@
         	pos_hint:{'right':0.97,'top':0.49}
         	size_hint:0.10,0.03
         	on_press:root.mostrarsenha()
-        	on_release:root.ocultarsenha()
         	background_color:0,0,0,0
         Image:
         	id:imagemsenha
-        	source:'fotos/mostrarsenha.jpeg'
+        	source:'fotos/mostrarsenha.png'
         	pos_hint:{'right':0.97,'top':0.49}
         	size_hint:0.10,0.03
         Label:
@@ -77,85 +94,87 @@
     FloatLayout:
         pos_hint:{'right':1,'top':1}
         size_hint:1,1
-        Image:
-        	pos_hint:{'right':1,'top':1.25}
-       	 size_hint:1,1
-        	source:"fotos/terra.png"
+        
+        canvas:
+        	Color:
+        		rgba:1,1,1,1
+        	Rectangle:
+        		pos:self.pos
+        		size:self.size
+        		source:'fotos/aurora.jpg'
+        			
         Label:
-            pos_hint:{'right':1,'top':1.40}
+            pos_hint:{'right':1,'top':1.33}
             size_hint:1,1
             text:'Ascensão'
             color:0,1,0,1
-            font_size: 60
-        Button:
-            pos_hint:{'right':0.39,'top':0.07}
-            size_hint:0.38,0.06
-            background_color:0,0,0,0
-            on_release:root.manager.current = 'menu'
-        Image:
-            pos_hint:{'right':0.31,'top':0.07}
-            size_hint:0.38,0.03
-            source:"fotos/botao_voltar~4.png"
+            font_size: 63
+        LabelButton:
+        	text:'Voltar'
+        	pos_hint:{'top':1.45,'right':0.59}
+        	size_hint:1,1
+        	font_size:43
+        	on_press:root.manager.current = "menu"
         TextInput:
         	id: email_input
-        	pos_hint:{'right':1,'top':0.6}
+        	pos_hint:{'right':1,'top':0.7}
             size_hint:1,0.05
             hint_text:'Digite seu E-mail'
             multiline:False
         TextInput:
         	id: nome_input
-        	pos_hint:{'right':1,'top':0.5}
+        	pos_hint:{'right':1,'top':0.6}
             size_hint:1,0.05
             hint_text:'Digite seu Nome'
             multiline:False
         TextInput:
         	id: senha1_input
-        	pos_hint:{'right':1,'top':0.4}
+        	pos_hint:{'right':1,'top':0.5}
             size_hint:1,0.05
             hint_text:'Digite sua Senha'
             password:True
             multiline:False
         Button:
         	id: mostrarsenha
-        	pos_hint:{'right':0.97,'top':0.39}
+        	pos_hint:{'right':0.97,'top':0.49}
         	size_hint:0.10,0.03
         	background_color:0,0,0,0
         	on_press:root.mostrarsenha1()
-        	on_release:root.ocultarsenha1()
         Image:
-        	source:'fotos/mostrarsenha.jpeg'
-        	pos_hint:{'right':0.97,'top':0.39}
+        	id:imagemsenha1
+        	source:'fotos/mostrarsenha.png'
+        	pos_hint:{'right':0.97,'top':0.49}
         	size_hint:0.10,0.03
         TextInput:
         	id: senha2_input
-        	pos_hint:{'right':1,'top':0.3}
+        	pos_hint:{'right':1,'top':0.425}
             size_hint:1,0.05
             hint_text:'Digite novamente sua Senha'
             password:True
             multiline:False
         Button:
         	id: mostrarsenha2
-        	pos_hint:{'right':0.97,'top':0.29}
+        	pos_hint:{'right':0.97,'top':0.41}
         	size_hint:0.10,0.03
         	background_color:0,0,0,0
         	on_press:root.mostrarsenha2()
-        	on_release:root.ocultarsenha2()
         Image:
-        	source:'fotos/mostrarsenha.jpeg'
-        	pos_hint:{'right':0.97,'top':0.29}
+        	id:imagemsenha2
+        	source:'fotos/mostrarsenha.png'
+        	pos_hint:{'right':0.97,'top':0.41}
         	size_hint:0.10,0.03
         Label:
         	id:label_error
         	text:''
-        	pos_hint:{'right':0.70,'top':0.25}
+        	pos_hint:{'right':0.70,'top':0.36}
         	size_hint:0.40,0.06      	
         Image:
-        	pos_hint:{'right':0.70,'top':0.20}
+        	pos_hint:{'right':0.70,'top':0.30}
             size_hint:0.40,0.06
         	source:'fotos/Botao.png'       
         Button:
             text:'Cadastrar'
-        	pos_hint:{'right':0.70,'top':0.20}
+        	pos_hint:{'right':0.70,'top':0.30}
             size_hint:0.40,0.06
             background_color:0,0,0,0
             on_press:root.enviar()
@@ -163,23 +182,29 @@
            
 <HomePage>:
     FloatLayout:
+        id:float_principal
         pos_hint:{'right':1,'top':1}
         size_hint:1,1
-        Image:
-        	pos_hint:{'right':1,'top':1.25}
-       	 size_hint:1,1
-        	source:"fotos/terra.png"
+        
+        canvas:
+        	Color:
+        		rgba:1,1,1,1
+        	Rectangle:
+        		pos:self.pos
+        		size:self.size
+        		source:'fotos/aurora.jpg'
+        		
         Label:
-            pos_hint:{'right':1,'top':1.40}
+            pos_hint:{'right':1,'top':1.30}
             size_hint:1,1
             text:'Ascensão'
             color:0,1,0,1
-            font_size: 60
+            font_size: 65
         LabelButton:
-            pos_hint:{'right':0.59,'top':1.49}
+            pos_hint:{'right':0.59,'top':1.45}
             size_hint:1,1
             text:'Sair'
-            font_size: 40
+            font_size: 43
             on_press:root.sair()
         Label:
         	id:label_error
@@ -188,26 +213,42 @@
         	size_hint:1,1
         Image:
         	id:foto_usuario
-        	pos_hint:{'right':0.95,'top':1.02}
+        	pos_hint:{'right':0.95,'top':1}
         	size_hint:0.10,0.10
         Button:
-        	pos_hint:{'right':0.95,'top':1.02}
+        	pos_hint:{'right':0.95,'top':1}
         	size_hint:0.10,0.10
         	background_color:0,0,0,0
         	on_press:root.manager.current = 'configuracoes'
         Label:
         	id:user_name
         	text:''
-        	pos_hint:{'right':1.40,'top':1.42}
+        	pos_hint:{'right':1.40,'top':1.40}
         	size_hint:1,1
-	    ScrollView:
-	        pos_hint:{'right':1,'top':0.65}
-	        size_hint:1,0.85
-	        Label:
-	            id: resposta_ia
-	            text:'Como posso te ajudar?'
-	            pos_hint:{'right':1,'top':1}
-	            size_hint:1,0.40
+		ScrollView:
+			id: scroll
+			size_hint:(1,0.40) # define o tamanho da caixa do scrollview: 0.40
+			pos_hint:{'top':0.65,'right':1}
+			do_scroll_x: False
+			bar_width: 10
+			
+			BoxLayout:
+				id: box
+				orientation:'vertical'
+				pos_hint:{'top':1,'right':1}
+				size_hint_y:None
+				height: self.minimum_height # Altura automatica baseada nos filhos
+				
+				Label:
+					id:resposta_ia
+					text:'Como posso te ajudar?'
+					size_hint_y:None
+					text_size: self.width - 20, None
+					halign:'left'
+					valign:'top'
+					padding: 10,20
+					height: self.texture_size[1] + 50 # Altura dinamica com espaço extra
+					
         TextInput:
         	id:entrada_usuario
         	hint_text:'Pergunte qualquer coisa '
@@ -226,82 +267,92 @@
         	pos_hint: {'right':1,'top':0.05}
         	size_hint:1,0.05
         	background_color:0,0,0,0
-        	on_press:root.send_question()
+        	on_press:root.iniciar_processo()
         
         
 <Configuracoes>:
 	FloatLayout:
         pos_hint:{'right':1,'top':1}
         size_hint:1,1
-        Image:
-        	pos_hint:{'right':1,'top':1.25}
-       	 size_hint:1,1
-        	source:"fotos/terra.png"
+        
+        canvas:
+        	Color:
+        		rgba:1,1,1,1
+        	Rectangle:
+        		pos:self.pos
+        		size:self.size
+        		source:'fotos/aurora.jpg'
         Label:
-            pos_hint:{'right':1,'top':1.40}
+            pos_hint:{'right':1,'top':1.30}
             size_hint:1,1
             text:'Ascensão'
             color:0,1,0,1
-            font_size: 60
+            font_size: 65
         LabelButton:
-            pos_hint:{'right':0.59,'top':1.49}
+            pos_hint:{'right':0.59,'top':1.45}
             size_hint:1,1
             text:'Voltar'
-            font_size: 40
+            font_size: 43
             on_press:root.manager.current = 'homepage'
-        Label:
-        	text:'Configurações'
-        	size_hint:1,1
-        	pos_hint:{'right':1,'top':1.11}
-        	font_size:50
         Image:
-        	pos_hint:{'right':0.70,'top':0.55}
+        	id:icone_audio
+        	source:'fotos/desativar_audio.png'
+        	pos_hint:{'right':0.95,'top':1}
+        	size_hint:0.08,0.10
+        Button:
+        	text:''
+        	pos_hint:{'right':0.95,'top':1}
+        	size_hint:0.08,0.10
+        	on_press:root.desativar_audio()
+        	background_color:0,0,0,0
+        Image:
+        	pos_hint:{'right':0.70,'top':0.650}
             size_hint:0.40,0.06
         	source:'fotos/Botao.png'
         Button:
         	text:'Mudar foto de perfil'
         	size_hint:0.40,0.06
-        	pos_hint:{'right':0.70,'top':0.55}
+        	pos_hint:{'right':0.70,'top':0.650}
         	background_color:0,0,0,0
         	on_press:root.manager.current = 'mudar_foto'
         Image:
-        	pos_hint:{'right':0.70,'top':0.45}
+        	pos_hint:{'right':0.70,'top':0.570}
         	size_hint:0.40,0.06
         	source:'fotos/Botao.png'
         Button:
         	text:'Mudar o nome'
-        	pos_hint:{'right':0.70,'top':0.45}
+        	pos_hint:{'right':0.70,'top':0.570}
         	size_hint:0.40,0.06
         	background_color:0,0,0,0
         	on_press:root.manager.current = 'mudar_nome'
         Image:
-        	pos_hint:{'right':0.70,'top':0.35}
+        	pos_hint:{'right':0.70,'top':0.500}
         	size_hint:0.40,0.06
         	source:'fotos/Botao.png'
         Button:
         	text:'Mudar a senha'
-        	pos_hint:{'right':0.70,'top':0.35}
+        	pos_hint:{'right':0.70,'top':0.500}
         	size_hint:0.40,0.06
         	source:'fotos/Botao.png'
         	background_color:0,0,0,0
         	on_press: root.manager.current = 'mudar_senha'
         Image:
-        	pos_hint:{'right':0.70,'top':0.25}
+        	pos_hint:{'right':0.70,'top':0.430}
         	size_hint:0.40,0.06
         	source:'fotos/Botao.png'
         Button:
         	text:'Mudar o E-mail'
-        	pos_hint:{'right':0.70,'top':0.25}
+        	pos_hint:{'right':0.70,'top':0.430}
         	size_hint:0.40,0.06
         	background_color:0,0,0,0
         	on_press: root.manager.current = 'mudar_email'
         Image:
-        	pos_hint:{'right':0.70,'top':0.15}
+        	pos_hint:{'right':0.70,'top':0.345}
         	size_hint:0.40,0.06
         	source:'fotos/Botao.png'
         Button:
         	text:'Historico de conversas'
-        	pos_hint:{'right':0.70,'top':0.15}
+        	pos_hint:{'right':0.70,'top':0.345}
         	size_hint:0.40,0.06
         	background_color:0,0,0,0
         	on_press:root.manager.current = 'historico_conversas'
@@ -317,16 +368,13 @@
         size_hint:1,1
      
         canvas.before:
+        	Color:
+        		rgba:1,1,1,1
         	Rectangle:
-        		source:"fotos/fundo_preto.png"
+        		source:"fotos/aurora.jpg"
         		pos:self.pos
         		size:self.size
         
-        		
-        Image:
-        	pos_hint:{'right':1,'top':1.25}
-       	 size_hint:1,1
-        	source:"fotos/terra.png"
         Label:
         	id:label_error
         	text:''
@@ -334,25 +382,20 @@
         	size_hint:1,1
         	color:0,0,0,0
         Label:
-            pos_hint:{'right':1,'top':1.40}
+            pos_hint:{'right':1,'top':1.35}
             size_hint:1,1
             text:'Ascensão'
             color:0,1,0,1
             font_size: 60
         LabelButton:
-            pos_hint:{'right':0.59,'top':1.49}
+            pos_hint:{'right':0.59,'top':1.45}
             size_hint:1,1
             text:'Voltar'
             font_size: 40
             on_press:root.manager.current = 'configuracoes'
-        Label:
-        	text:'Mudar Foto De Perfil'
-        	pos_hint:{'right':1,'top':1.14}
-        	size_hint:1,1
-        	font_size:45
         ScrollView:
         	id:teste
-        	pos_hint:{'right':1,'top':0.59}#0.65
+        	pos_hint:{'right':1,'top':0.70}#0.65
         	size_hint:1,0.85#0.85
 
 <Mudar_Nome>:
@@ -362,16 +405,13 @@
         size_hint:1,1
      
         canvas.before:
+        	Color:
+        		rgba:1,1,1,1
         	Rectangle:
-        		source:"fotos/fundo_preto.png"
+        		source:"fotos/aurora.jpg"
         		pos:self.pos
         		size:self.size
         
-        		
-        Image:
-        	pos_hint:{'right':1,'top':1.25}
-       	 size_hint:1,1
-        	source:"fotos/terra.png"
         Label:
         	id:label_error
         	text:''
@@ -379,35 +419,30 @@
         	size_hint:1,1
         	color:0,0,0,0
         Label:
-            pos_hint:{'right':1,'top':1.40}
+            pos_hint:{'right':1,'top':1.35}
             size_hint:1,1
             text:'Ascensão'
             color:0,1,0,1
             font_size: 60
         LabelButton:
-            pos_hint:{'right':0.59,'top':1.49}
+            pos_hint:{'right':0.59,'top':1.45}
             size_hint:1,1
             text:'Voltar'
             font_size: 40
             on_press:root.manager.current = 'configuracoes'
-        Label:
-        	text:'Mudar Nome De Perfil'
-        	pos_hint:{'right':1,'top':1.10}
-        	size_hint:1,1
-        	font_size:45
         TextInput:
         	id:campo_alterar_nome
         	hint_text:'Digite o novo nome'
-        	pos_hint:{'right':1,'top':0.47}
+        	pos_hint:{'right':1,'top':0.57}
         	size_hint:1,0.05
         Image:
         	source:'fotos/Botao.png'
-        	pos_hint:{'right':1,'top':0.37}
+        	pos_hint:{'right':1,'top':0.47}
         	size_hint:1,0.05
         Button:
         	id:validar
         	text:'Validar'
-        	pos_hint:{'right':1,'top':0.37}
+        	pos_hint:{'right':1,'top':0.47}
         	size_hint:1,0.05
         	background_color:0,0,0,0
         	on_press: root.mudar_nome_perfil()
@@ -420,16 +455,13 @@
         size_hint:1,1
      
         canvas.before:
+        	Color:
+        		rgba:1,1,1,1
         	Rectangle:
-        		source:"fotos/fundo_preto.png"
+        		source:"fotos/aurora.jpg"
         		pos:self.pos
         		size:self.size
         
-        		
-        Image:
-        	pos_hint:{'right':1,'top':1.25}
-       	 size_hint:1,1
-        	source:"fotos/terra.png"
         Label:
         	id:label_error
         	text:''
@@ -437,90 +469,85 @@
         	size_hint:1,1
         	color:0,0,0,0
         Label:
-            pos_hint:{'right':1,'top':1.40}
+            pos_hint:{'right':1,'top':1.35}
             size_hint:1,1
             text:'Ascensão'
             color:0,1,0,1
             font_size: 60
         LabelButton:
-            pos_hint:{'right':0.59,'top':1.49}
+            pos_hint:{'right':0.59,'top':1.45}
             size_hint:1,1
             text:'Voltar'
             font_size: 40
             on_press:root.manager.current = 'configuracoes'
-        Label:
-        	text:'Mudar Senha'
-        	pos_hint:{'right':1,'top':1.10}
-        	size_hint:1,1
-        	font_size:45
         TextInput:
         	id: senha1_input
         	hint_text:'Digite sua senha antiga'
-        	pos_hint:{'right':1,'top':0.47}
+        	pos_hint:{'right':1,'top':0.670}
         	size_hint:1,0.05
         	password:True
         	multiline:False
         Button:
         	id: mostrarsenha
-        	pos_hint:{'right':0.97,'top':0.46}
+        	pos_hint:{'right':0.97,'top':0.660}
         	size_hint:0.10,0.03
         	background_color:0,0,0,0
         	on_press:root.mostrarsenha1()
-        	on_release:root.ocultarsenha1()
         Image:
-        	source:'fotos/mostrarsenha.jpeg'
-        	pos_hint:{'right':0.97,'top':0.46}
+        	id:imagemsenha1
+        	source:'fotos/mostrarsenha.png'
+        	pos_hint:{'right':0.97,'top':0.660}
         	size_hint:0.10,0.03
         TextInput:
         	id: senha2_input
-        	pos_hint:{'right':1,'top':0.4}
+        	pos_hint:{'right':1,'top':0.600}
             size_hint:1,0.05
             hint_text:'Digite sua Senha'
             password:True
             multiline:False
         Button:
         	id: mostrarsenha
-        	pos_hint:{'right':0.97,'top':0.39}
+        	pos_hint:{'right':0.97,'top':0.590}
         	size_hint:0.10,0.03
         	background_color:0,0,0,0
         	on_press:root.mostrarsenha2()
-        	on_release:root.ocultarsenha2()
         Image:
-        	source:'fotos/mostrarsenha.jpeg'
-        	pos_hint:{'right':0.97,'top':0.39}
+        	id:imagemsenha2
+        	source:'fotos/mostrarsenha.png'
+        	pos_hint:{'right':0.97,'top':0.590}
         	size_hint:0.10,0.03
         TextInput:
         	id: senha3_input
-        	pos_hint:{'right':1,'top':0.33}
+        	pos_hint:{'right':1,'top':0.530}
             size_hint:1,0.05
             hint_text:'Digite novamente sua Senha'
             password:True
             multiline:False
         Button:
         	id: mostrarsenha2
-        	pos_hint:{'right':0.97,'top':0.32}
+        	pos_hint:{'right':0.97,'top':0.520}
         	size_hint:0.10,0.03
         	background_color:0,0,0,0
         	on_press:root.mostrarsenha3()
-        	on_release:root.ocultarsenha3()
         Image:
-        	source:'fotos/mostrarsenha.jpeg'
-        	pos_hint:{'right':0.97,'top':0.32}
+        	id:imagemsenha3
+        	source:'fotos/mostrarsenha.png'
+        	pos_hint:{'right':0.97,'top':0.520}
         	size_hint:0.10,0.03
         Label:
         	id:label_error
         	text:''
-        	pos_hint:{'right':0.70,'top':0.29}
+        	pos_hint:{'right':0.70,'top':0.490}
         	size_hint:0.40,0.06
         	color: 1,0,0,1
         Image:
         	source:'fotos/Botao.png'
-        	pos_hint:{'right':1,'top':0.23}
+        	pos_hint:{'right':1,'top':0.430}
         	size_hint:1,0.05
         Button:
         	id:validar
         	text:'Validar'
-        	pos_hint:{'right':1,'top':0.23}
+        	pos_hint:{'right':1,'top':0.430}
         	size_hint:1,0.05
         	background_color:0,0,0,0
         	on_press: root.mudar_senha()
@@ -533,51 +560,43 @@
         size_hint:1,1
      
         canvas.before:
+        	Color:
+        		rgba:1,1,1,1
         	Rectangle:
-        		source:"fotos/fundo_preto.png"
+        		source:"fotos/aurora.jpg"
         		pos:self.pos
         		size:self.size
         
-        		
-        Image:
-        	pos_hint:{'right':1,'top':1.25}
-       	 size_hint:1,1
-        	source:"fotos/terra.png"
         Label:
         	id:label_error
         	text:''
         	pos_hint:{'right':1,'top':0.42}
         	size_hint:1,0.05
         Label:
-            pos_hint:{'right':1,'top':1.40}
+            pos_hint:{'right':1,'top':1.35}
             size_hint:1,1
             text:'Ascensão'
             color:0,1,0,1
             font_size: 60
         LabelButton:
-            pos_hint:{'right':0.59,'top':1.49}
+            pos_hint:{'right':0.59,'top':1.45}
             size_hint:1,1
             text:'Voltar'
             font_size: 40
             on_press:root.manager.current = 'configuracoes'
-        Label:
-        	text:'Mudar E-mail'
-        	pos_hint:{'right':1,'top':1.10}
-        	size_hint:1,1
-        	font_size:45
         TextInput:
         	id:campo_alterar_email
         	hint_text:'Digite seu novo email'
-        	pos_hint:{'right':1,'top':0.47}
+        	pos_hint:{'right':1,'top':0.57}
         	size_hint:1,0.05
         Image:
         	source:'fotos/Botao.png'
-        	pos_hint:{'right':1,'top':0.37}
+        	pos_hint:{'right':1,'top':0.47}
         	size_hint:1,0.05
         Button:
         	id:validar
         	text:'Validar'
-        	pos_hint:{'right':1,'top':0.37}
+        	pos_hint:{'right':1,'top':0.47}
         	size_hint:1,0.05
         	background_color:0,0,0,0
         	on_press: root.mudar_email()
@@ -590,39 +609,30 @@
         
         canvas.before:
         	Rectangle:
-        		source:"fotos/fundo_preto.png"
+        		source:"fotos/aurora.jpg"
         		pos:self.pos
         		size:self.size
         
-        Image:
-        	pos_hint:{'right':1,'top':1.25}
-       	 size_hint:1,1
-        	source:"fotos/terra.png"
         Label:
         	id:label_error
         	text:''
         	pos_hint:{'right':1,'top':0.42}
         	size_hint:1,0.05
         Label:
-            pos_hint:{'right':1,'top':1.40}
+            pos_hint:{'right':1,'top':1.35}
             size_hint:1,1
             text:'Ascensão'
             color:0,1,0,1
             font_size: 60
         LabelButton:
-            pos_hint:{'right':0.59,'top':1.49}
+            pos_hint:{'right':0.59,'top':1.45}
             size_hint:1,1
             text:'Voltar'
             font_size: 40
             on_press:root.manager.current = 'configuracoes'
-        Label:
-        	text:'Historico De Conversas'
-        	pos_hint:{'right':1,'top':1.10}
-        	size_hint:1,1
-        	font_size:45
         ScrollView:
-        	pos_hint:{'right':1,'top':0.45}
-        	size_hint:1,0.85
+        	pos_hint:{'right':1,'top':0.70}
+        	size_hint:1,0.55
         	GridLayout:
         		id:float
         		cols:1
@@ -631,10 +641,32 @@
         		size_hint_y:None
         		height: self.minimum_height
         	
-        	
-           		
-           	     	        	
+<Aguardando>:
+    FloatLayout:
+        id:float
+        pos_hint:{'right':1,'top':1}
+        size_hint:1,1
+        
+        canvas.before:
+        	Rectangle:
+        		source:"fotos/aurora.jpg"
+        		pos:self.pos
+        		size:self.size
+        
+        Label:
+        	id:label_error
+        	text:''
+        	pos_hint:{'right':1,'top':0.42}
+        	size_hint:1,0.05
+        Label:
+            pos_hint:{'right':1,'top':1.35}
+            size_hint:1,1
+            text:'Ascensão'
+            color:0,1,0,1
+            font_size: 60
+  
                  	        	
+        	        	        	
         	        	        	
         	        	        	
         	        	        	
